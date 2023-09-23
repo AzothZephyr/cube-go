@@ -1,0 +1,346 @@
+{
+    "result": {
+        "assets": [
+            {
+                "assetId": 1,
+                "symbol": "BTC",
+                "decimals": 8,
+                "displayDecimals": 5,
+                "transactionExplorer": "https://mempool.space/tx/{}",
+                "addressExplorer": "https://mempool.space/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 1,
+                "metadata": {
+                    "network": "Mainnet"
+                }
+            },
+            {
+                "assetId": 2,
+                "symbol": "ETH",
+                "decimals": 18,
+                "displayDecimals": 4,
+                "transactionExplorer": "https://etherscan.io/tx/{}",
+                "addressExplorer": "https://etherscan.io/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 2,
+                "metadata": {
+                    "chain_id": 1
+                }
+            },
+            {
+                "assetId": 90000,
+                "symbol": "USD",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90001,
+                "symbol": "EUR",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90002,
+                "symbol": "JPY",
+                "decimals": 9,
+                "displayDecimals": 0,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90003,
+                "symbol": "GBP",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90004,
+                "symbol": "CAD",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90005,
+                "symbol": "AUD",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90006,
+                "symbol": "NZD",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90007,
+                "symbol": "IDR",
+                "decimals": 9,
+                "displayDecimals": 0,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90008,
+                "symbol": "CHF",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90009,
+                "symbol": "PLN",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90010,
+                "symbol": "CNY",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90011,
+                "symbol": "KRW",
+                "decimals": 9,
+                "displayDecimals": 0,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90012,
+                "symbol": "MXN",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90013,
+                "symbol": "VND",
+                "decimals": 9,
+                "displayDecimals": 0,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90014,
+                "symbol": "AED",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90015,
+                "symbol": "INR",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90016,
+                "symbol": "BRL",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90017,
+                "symbol": "ARS",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90018,
+                "symbol": "EGP",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90019,
+                "symbol": "ZAR",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 90020,
+                "symbol": "NGN",
+                "decimals": 9,
+                "displayDecimals": 2,
+                "settles": false,
+                "assetType": "Fiat",
+                "sourceId": 0,
+                "metadata": {}
+            },
+            {
+                "assetId": 80001,
+                "symbol": "tBTC",
+                "decimals": 8,
+                "displayDecimals": 5,
+                "transactionExplorer": "https://mempool.space/testnet/tx/{}",
+                "addressExplorer": "https://mempool.space/testnet/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 101,
+                "metadata": {
+                    "network": "Testnet"
+                }
+            },
+            {
+                "assetId": 80002,
+                "symbol": "gETH",
+                "decimals": 18,
+                "displayDecimals": 4,
+                "transactionExplorer": "https://goerli.etherscan.io/tx/{}",
+                "addressExplorer": "https://goerli.etherscan.io/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 102,
+                "metadata": {
+                    "chain_id": 5
+                }
+            },
+            {
+                "assetId": 80004,
+                "symbol": "gDAI",
+                "decimals": 18,
+                "displayDecimals": 2,
+                "transactionExplorer": "https://goerli.etherscan.io/tx/{}",
+                "addressExplorer": "https://goerli.etherscan.io/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 102,
+                "metadata": {
+                    "chain_id": 5
+                }
+            },
+            {
+                "assetId": 80003,
+                "symbol": "gUSDC",
+                "decimals": 6,
+                "displayDecimals": 2,
+                "transactionExplorer": "https://goerli.etherscan.io/tx/{}",
+                "addressExplorer": "https://goerli.etherscan.io/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 102,
+                "metadata": {
+                    "chain_id": 5
+                }
+            },
+            {
+                "assetId": 3,
+                "symbol": "USDC",
+                "decimals": 6,
+                "displayDecimals": 2,
+                "transactionExplorer": "https://etherscan.io/tx/{}",
+                "addressExplorer": "https://etherscan.io/address/{}",
+                "settles": true,
+                "assetType": "Crypto",
+                "sourceId": 2,
+                "metadata": {
+                    "chain_id": 1
+                }
+            }
+        ],
+        "markets": [
+            {
+                "symbol": "BTCUSDC",
+                "marketId": 100002,
+                "baseAssetId": 1,
+                "baseLotSize": "0x0000000000000000000000000000000000000000000003e8",
+                "quoteAssetId": 3,
+                "quoteLotSize": "0x000000000000000000000000000000000000000000000001",
+                "priceDisplayDecimals": 2,
+                "protectionPriceLevels": 3000
+            },
+            {
+                "symbol": "ETHUSDC",
+                "marketId": 100003,
+                "baseAssetId": 2,
+                "baseLotSize": "0x0000000000000000000000000000000000038d7ea4c68000",
+                "quoteAssetId": 3,
+                "quoteLotSize": "0x00000000000000000000000000000000000000000000000a",
+                "priceDisplayDecimals": 2,
+                "protectionPriceLevels": 5000
+            },
+            {
+                "symbol": "ETHBTC",
+                "marketId": 100001,
+                "baseAssetId": 2,
+                "baseLotSize": "0x0000000000000000000000000000000000038d7ea4c68000",
+                "quoteAssetId": 1,
+                "quoteLotSize": "0x000000000000000000000000000000000000000000000001",
+                "priceDisplayDecimals": 5,
+                "protectionPriceLevels": 1000
+            }
+        ]
+    }
+}
