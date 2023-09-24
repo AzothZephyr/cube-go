@@ -9,6 +9,9 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/azothzephyr/cube-bot/pkg/market_data"
@@ -19,11 +22,13 @@ import (
 var apiKey string = "asdf"
 
 type CubeBot struct {
-	data []market_data.AggMessage
-	ws   *websocket.Conn
+	data           []market_data.AggMessage
+	ws             *websocket.Conn
+	shutdown       <-chan bool
+	isShuttingDown bool
 }
 
-func NewCubeBot() *CubeBot {
+func NewCubeBot(shutdown <-chan bool) *CubeBot {
 	// setup websocket connection
 	dialer := websocket.DefaultDialer
 	// dev cert is fucked up, so we hit by ip
@@ -35,10 +40,28 @@ func NewCubeBot() *CubeBot {
 		panic(err)
 	}
 
-	bot := &CubeBot{ws: conn}
+	bot := &CubeBot{ws: conn, shutdown: shutdown}
+
+	go bot.stop()
 	// this is blocking
 	bot.run()
 	return bot
+}
+
+func (bot *CubeBot) stop() {
+	fmt.Println("awaiting signal")
+
+	for {
+		// bot.isShuttingDown receives a bool on channel to set stopping point
+		bot.isShuttingDown = <-bot.shutdown
+		if bot.isShuttingDown {
+			// if bot.isShuttingDown is true, break for loop
+			break
+		}
+	}
+
+	// log that we're stopping and return
+	log.Println("os signal received, stopping....")
 }
 
 func (bot *CubeBot) run() {
@@ -54,7 +77,6 @@ func (bot *CubeBot) run() {
 		for {
 			select {
 			case <-heartbeatTicker.C:
-				// do stuff
 				// every 30 seconds send heart beat
 				bot.sendHeartbeat()
 			case <-quit:
@@ -75,6 +97,14 @@ func (bot *CubeBot) run() {
 			return
 		}
 
+		if bot.isShuttingDown {
+			// TODO: cancel existing orders
+			log.Println("cancelling orders....")
+			log.Println("closing websockets connection...")
+			bot.ws.Close()
+			return
+		}
+
 		if messageType == websocket.BinaryMessage {
 			var decodedMessage market_data.AggMessage
 			err := proto.Unmarshal(message, &decodedMessage)
@@ -85,14 +115,18 @@ func (bot *CubeBot) run() {
 
 			if decodedMessage.GetTopOfBooks() != nil {
 				fmt.Println("top update")
+				tops := decodedMessage.GetTopOfBooks()
+				log.Println(tops.GetTops())
 			}
 			if decodedMessage.GetHeartbeat() != nil {
 				fmt.Println("heartbeat")
-				hb := decodedMessage.GetHeartbeat()
-				log.Println("request id:", hb.RequestId)
+				hb_resp := decodedMessage.GetHeartbeat()
+				log.Println("request id:", hb_resp.RequestId)
 			}
 			if decodedMessage.GetRateUpdates() != nil {
 				fmt.Println("rate updates")
+				updatedRates := decodedMessage.GetRateUpdates()
+				log.Println(updatedRates)
 			}
 			fmt.Println("-----")
 		}
@@ -170,10 +204,19 @@ func int64ToBytes(i int64) []byte {
 }
 
 func main() {
-	// rand.Seed(time.Now().UnixNano())
-	// instantiate cubeorderbook
-	NewCubeBot()
-	// while true {
+	// create channel to receive os signals
+	sigs := make(chan os.Signal, 1)
+	// identify signals we want to receive
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	done := make(chan bool, 1)
 
-	// }
+	// monitor for signals
+	go func() {
+		<-sigs
+		// block goroutine until monitored signal is received
+		done <- true
+	}()
+
+	NewCubeBot(done)
+	log.Println("exiting...")
 }
