@@ -4,10 +4,8 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
-	"crypto/tls"
 	"encoding/base64"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -22,7 +20,6 @@ import (
 var apiKey string = "asdf"
 
 type CubeBot struct {
-	data           []market_data.AggMessage
 	ws             *websocket.Conn
 	shutdown       <-chan bool
 	isShuttingDown bool
@@ -31,10 +28,7 @@ type CubeBot struct {
 func NewCubeBot(shutdown <-chan bool) *CubeBot {
 	// setup websocket connection
 	dialer := websocket.DefaultDialer
-	// dev cert is fucked up, so we hit by ip
-	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	conn, _, err := dialer.Dial("wss://147.28.171.25/md/tops", nil)
-	// conn, _, err := dialer.Dial("wss://dev.cube.exchange/md/tops", nil)
+	conn, _, err := dialer.Dial("wss://staging.cube.exchange/md/tops", nil)
 	// conn, _, err := dialer.Dial("wss://api.cube.exchange/md/tops", nil)
 	if err != nil {
 		panic(err)
@@ -49,7 +43,7 @@ func NewCubeBot(shutdown <-chan bool) *CubeBot {
 }
 
 func (bot *CubeBot) stop() {
-	fmt.Println("awaiting signal")
+	log.Println("awaiting signal")
 
 	for {
 		// bot.isShuttingDown receives a bool on channel to set stopping point
@@ -90,16 +84,16 @@ func (bot *CubeBot) run() {
 		messageType, message, err := bot.ws.ReadMessage()
 		if err != nil {
 			if closeErr, ok := err.(*websocket.CloseError); ok {
-				fmt.Printf("Websocket closed with code: %v - %v\n", closeErr.Code, closeErr.Text)
+				log.Printf("Websocket closed with code: %v - %v\n", closeErr.Code, closeErr.Text)
 			} else {
-				fmt.Println("read:", err)
+				log.Println("read:", err)
 			}
 			return
 		}
 
 		if bot.isShuttingDown {
 			// TODO: cancel existing orders
-			log.Println("cancelling orders....")
+			log.Println("cancelling orders.... (TODO)")
 			log.Println("closing websockets connection...")
 			bot.ws.Close()
 			return
@@ -109,33 +103,32 @@ func (bot *CubeBot) run() {
 			var decodedMessage market_data.AggMessage
 			err := proto.Unmarshal(message, &decodedMessage)
 			if err != nil {
-				fmt.Println("error with message unmarshal:", err)
+				log.Println("error with message unmarshal:", err)
 				continue
 			}
 
 			if decodedMessage.GetTopOfBooks() != nil {
-				fmt.Println("top update")
+				log.Println("top update")
 				tops := decodedMessage.GetTopOfBooks()
 				log.Println(tops.GetTops())
 			}
 			if decodedMessage.GetHeartbeat() != nil {
-				fmt.Println("heartbeat")
+				log.Println("heartbeat")
 				hb_resp := decodedMessage.GetHeartbeat()
 				log.Println("request id:", hb_resp.RequestId)
 			}
 			if decodedMessage.GetRateUpdates() != nil {
-				fmt.Println("rate updates")
+				log.Println("rate updates")
 				updatedRates := decodedMessage.GetRateUpdates()
 				log.Println(updatedRates)
 			}
-			fmt.Println("-----")
+			log.Println("-----")
 		}
 	}
 }
 
 func (bot *CubeBot) sendCommand(command string, params []string) {
 	// Send command implementation
-
 }
 
 func (bot *CubeBot) sendHeartbeat() {
@@ -157,12 +150,12 @@ func (bot *CubeBot) sendHeartbeat() {
 
 	msg, err := proto.Marshal(&cm)
 	if err != nil {
-		fmt.Println("Error marshalling the heartbeat message: ", err)
+		log.Println("Error marshalling the heartbeat message: ", err)
 		return
 	}
 	err = bot.ws.WriteMessage(websocket.BinaryMessage, msg)
 	if err != nil {
-		fmt.Println("Error sending the heartbeat message: ", err)
+		log.Println("Error sending the heartbeat message: ", err)
 	}
 }
 
@@ -174,7 +167,7 @@ func (bot *CubeBot) sendHeartbeat() {
 // 		if err == nil {
 // 			break // Break out of the loop if connected successfully
 // 		}
-// 		fmt.Println("Reconnect failed:", err)
+// 		log.Println("Reconnect failed:", err)
 // 	}
 // }
 
