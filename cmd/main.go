@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/azothzephyr/cube-bot/config"
 	"github.com/azothzephyr/cube-bot/pkg/market_data"
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
@@ -20,12 +21,13 @@ import (
 var apiKey string = "asdf"
 
 type CubeBot struct {
+	config         config.Config
 	ws             *websocket.Conn
 	shutdown       <-chan bool
 	isShuttingDown bool
 }
 
-func NewCubeBot(shutdown <-chan bool) *CubeBot {
+func NewCubeBot(cfg config.Config, shutdown <-chan bool) *CubeBot {
 	// setup websocket connection
 	dialer := websocket.DefaultDialer
 	conn, _, err := dialer.Dial("wss://staging.cube.exchange/md/tops", nil)
@@ -34,7 +36,7 @@ func NewCubeBot(shutdown <-chan bool) *CubeBot {
 		panic(err)
 	}
 
-	bot := &CubeBot{ws: conn, shutdown: shutdown}
+	bot := &CubeBot{config: cfg, ws: conn, shutdown: shutdown}
 
 	go bot.stop()
 	// this is blocking
@@ -201,15 +203,25 @@ func main() {
 	sigs := make(chan os.Signal, 1)
 	// identify signals we want to receive
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	done := make(chan bool, 1)
+	shutdownChannel := make(chan bool, 1)
 
 	// monitor for signals
 	go func() {
 		<-sigs
 		// block goroutine until monitored signal is received
-		done <- true
+		shutdownChannel <- true
 	}()
 
-	NewCubeBot(done)
+	// Generate our config based on the config supplied by the user in the flags
+	cfgPath, err := config.ParseFlags()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cfg, err := config.NewConfig(cfgPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	NewCubeBot(cfg, shutdownChannel)
 	log.Println("exiting...")
 }
