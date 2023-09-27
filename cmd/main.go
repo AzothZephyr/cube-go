@@ -22,7 +22,8 @@ var apiKey string = "asdf"
 
 type CubeBot struct {
 	config         config.Config
-	ws             *websocket.Conn
+	marketDataWS   *websocket.Conn
+	tradeWS        *websocket.Conn
 	shutdown       <-chan bool
 	isShuttingDown bool
 }
@@ -30,13 +31,23 @@ type CubeBot struct {
 func NewCubeBot(cfg config.Config, shutdown <-chan bool) *CubeBot {
 	// setup websocket connection
 	dialer := websocket.DefaultDialer
-	conn, _, err := dialer.Dial("wss://staging.cube.exchange/md/tops", nil)
+	marketDataConn, _, err := dialer.Dial("wss://staging.cube.exchange/md/tops", nil)
 	// conn, _, err := dialer.Dial("wss://api.cube.exchange/md/tops", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	bot := &CubeBot{config: cfg, ws: conn, shutdown: shutdown}
+	tradeConn, _, err := dialer.Dial("wss://staging.cube.exchange/md/tops", nil)
+	// conn, _, err := dialer.Dial("wss://api.cube.exchange/md/tops", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	bot := &CubeBot{
+		config:       cfg,
+		tradeWS:      tradeConn,
+		marketDataWS: marketDataConn,
+		shutdown:     shutdown}
 
 	go bot.stop()
 	// this is blocking
@@ -61,7 +72,8 @@ func (bot *CubeBot) stop() {
 }
 
 func (bot *CubeBot) run() {
-	defer bot.ws.Close()
+	defer bot.marketDataWS.Close()
+	defer bot.tradeWS.Close()
 
 	bot.sendCommand("auth", []string{bot.getAuth()})
 	// bot.waitForAccount()
@@ -83,7 +95,7 @@ func (bot *CubeBot) run() {
 	}()
 
 	for {
-		messageType, message, err := bot.ws.ReadMessage()
+		messageType, message, err := bot.marketDataWS.ReadMessage()
 		if err != nil {
 			if closeErr, ok := err.(*websocket.CloseError); ok {
 				log.Printf("Websocket closed with code: %v - %v\n", closeErr.Code, closeErr.Text)
@@ -96,8 +108,9 @@ func (bot *CubeBot) run() {
 		if bot.isShuttingDown {
 			// TODO: cancel existing orders
 			log.Println("cancelling orders.... (TODO)")
-			log.Println("closing websockets connection...")
-			bot.ws.Close()
+			log.Println("closing websockets connections...")
+			bot.marketDataWS.Close()
+			bot.tradeWS.Close()
 			return
 		}
 
@@ -155,7 +168,7 @@ func (bot *CubeBot) sendHeartbeat() {
 		log.Println("Error marshalling the heartbeat message: ", err)
 		return
 	}
-	err = bot.ws.WriteMessage(websocket.BinaryMessage, msg)
+	err = bot.marketDataWS.WriteMessage(websocket.BinaryMessage, msg)
 	if err != nil {
 		log.Println("Error sending the heartbeat message: ", err)
 	}
@@ -222,6 +235,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	NewCubeBot(cfg, shutdownChannel)
+	NewCubeBot(*cfg, shutdownChannel)
 	log.Println("exiting...")
 }
