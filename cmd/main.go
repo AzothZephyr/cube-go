@@ -94,52 +94,80 @@ func (bot *CubeBot) run() {
 		}
 	}()
 
-	for {
-		messageType, message, err := bot.marketDataWS.ReadMessage()
-		if err != nil {
-			if closeErr, ok := err.(*websocket.CloseError); ok {
-				log.Printf("Websocket closed with code: %v - %v\n", closeErr.Code, closeErr.Text)
-			} else {
-				log.Println("read:", err)
-			}
-			return
-		}
-
-		if bot.isShuttingDown {
-			// TODO: cancel existing orders
-			log.Println("cancelling orders.... (TODO)")
-			log.Println("closing websockets connections...")
-			bot.marketDataWS.Close()
-			bot.tradeWS.Close()
-			return
-		}
-
-		if messageType == websocket.BinaryMessage {
-			var decodedMessage market_data.AggMessage
-			err := proto.Unmarshal(message, &decodedMessage)
+	block := make(chan string)
+	// market data goroutine
+	go func() {
+		for {
+			messageType, message, err := bot.marketDataWS.ReadMessage()
 			if err != nil {
-				log.Println("error with message unmarshal:", err)
-				continue
+				if closeErr, ok := err.(*websocket.CloseError); ok {
+					log.Printf("MARKET: Websocket closed with code: %v - %v\n", closeErr.Code, closeErr.Text)
+				} else {
+					log.Println("MARKET: read:", err)
+				}
+				return
 			}
 
-			if decodedMessage.GetTopOfBooks() != nil {
-				log.Println("top update")
-				tops := decodedMessage.GetTopOfBooks()
-				log.Println(tops.GetTops())
+			if bot.isShuttingDown {
+				log.Println("MARKET: shutting down...")
+				log.Println("MARKET: closing websocket connections...")
+				bot.marketDataWS.Close()
+				block <- "MARKET"
+				return
 			}
-			if decodedMessage.GetHeartbeat() != nil {
-				log.Println("heartbeat")
-				hb_resp := decodedMessage.GetHeartbeat()
-				log.Println("request id:", hb_resp.RequestId)
+
+			if messageType == websocket.BinaryMessage {
+				var decodedMessage market_data.AggMessage
+				err := proto.Unmarshal(message, &decodedMessage)
+				if err != nil {
+					log.Println("MARKET: error with message unmarshal:", err)
+					continue
+				}
+
+				decodedMessage.ProtoMessage()
+				if decodedMessage.GetTopOfBooks() != nil {
+					log.Println("MARKET: top update")
+					tops := decodedMessage.GetTopOfBooks()
+					log.Println(tops.GetTops())
+				}
+				if decodedMessage.GetHeartbeat() != nil {
+					log.Println("MARKET: heartbeat")
+					hb_resp := decodedMessage.GetHeartbeat()
+					log.Println("MARKET: request id:", hb_resp.RequestId)
+				}
+				if decodedMessage.GetRateUpdates() != nil {
+					log.Println("MARKET: rate updates")
+					updatedRates := decodedMessage.GetRateUpdates()
+					log.Println(updatedRates)
+				}
 			}
-			if decodedMessage.GetRateUpdates() != nil {
-				log.Println("rate updates")
-				updatedRates := decodedMessage.GetRateUpdates()
-				log.Println(updatedRates)
-			}
-			log.Println("-----")
 		}
-	}
+	}()
+	// trade go routine
+	go func() {
+		for {
+			log.Println("TRADE: evaluating...")
+			if bot.isShuttingDown {
+				// TODO: cancel existing orders
+				log.Println("TRADE: cancelling orders.... (TODO)")
+				log.Println("TRADE: closing websockets connections...")
+				bot.tradeWS.Close()
+				block <- "TRADE"
+				return
+			}
+			log.Println("TRADE: checking open orders....")
+			log.Println("TRADE: checking market data against strategy to take action if need be")
+			sleepTime := time.Duration(1 * time.Second)
+			time.Sleep(sleepTime)
+		}
+
+	}()
+
+	//
+	service := <-block
+	log.Println(service + " has closed, waiting on other goroutines...")
+	service = <-block
+	log.Println(service + " has closed, finishing...")
 }
 
 func (bot *CubeBot) sendCommand(command string, params []string) {
