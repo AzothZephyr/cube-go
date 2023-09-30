@@ -264,5 +264,5 @@ func main() {
 	}
 
 	NewCubeBot(*cfg, shutdownChannel)
-	log.Println("exiting...")
+	log.Println("MAIN: exiting...")
 }
